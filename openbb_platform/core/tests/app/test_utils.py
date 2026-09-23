@@ -68,6 +68,30 @@ def test_basemodel_to_multiindex_df():
     assert isinstance(df.index, pd.MultiIndex)
 
 
+@pytest.mark.parametrize(
+    "index_names",
+    [
+        [None, None],
+        ["group", None],
+        [None, "item"],
+        ["group", "item"],
+    ],
+)
+def test_multiindex_round_trip_preserves_level_names(index_names):
+    """Test MultiIndex round trips with named and unnamed index levels."""
+    expected = pd.DataFrame(
+        {"value": [10, 20]},
+        index=pd.MultiIndex.from_tuples(
+            [("A", 1), ("B", 2)],
+            names=index_names,
+        ),
+    )
+
+    result = basemodel_to_df(df_to_basemodel(expected.copy()))
+
+    pd.testing.assert_frame_equal(result, expected)
+
+
 def test_get_target_column():
     """Test the get_target_column helper."""
     target = get_target_column(df, "x")
