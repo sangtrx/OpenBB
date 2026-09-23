@@ -38,8 +38,13 @@ def basemodel_to_df(
             )
 
     if "is_multiindex" in df.columns:
-        col_names = ast.literal_eval(df.multiindex_names.unique()[0])
-        df = df.set_index(col_names)
+        index_names = ast.literal_eval(df.multiindex_names.unique()[0])
+        index_columns = [
+            name if name is not None else f"level_{position}"
+            for position, name in enumerate(index_names)
+        ]
+        df = df.set_index(index_columns)
+        df.index.names = index_names
         df = df.drop(["is_multiindex", "multiindex_names"], axis=1)
 
     # If the date column contains dates only, convert them to a date to avoid encoding time data.
